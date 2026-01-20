@@ -1,0 +1,6 @@
+[submodule "algs/stable-baselines3"]
+	path = algs/stable-baselines3
+	url = https://github.com/sosoeeee/stable-baselines3.git
+[submodule "envs/gym-hybrid"]
+	path = envs/gym-hybrid
+	url = https://github.com/sosoeeee/gym-hybrid.git

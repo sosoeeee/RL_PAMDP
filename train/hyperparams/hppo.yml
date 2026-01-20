@@ -1,0 +1,29 @@
+Moving-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 1e7
+  policy: 'MlpPolicy'
+  batch_size: 256
+  n_steps: 1024
+  gamma: 0.99
+  learning_rate: lin_5e-6
+  clip_range: lin_0.2
+  ent_coef: lin_0.025
+  n_epochs: 10
+  # target_kl: 0.1
+  gae_lambda: 0.99
+  max_grad_norm: 5
+  vf_coef: 1.0
+  policy_kwargs: "dict(log_std_init = 0,
+                       ortho_init=False,
+                       activation_fn=nn.ReLU,
+                       net_arch=dict(pi=[128], vf=[128, 128, 64], di=[128, 64], co=[128, 64])
+                       )"
+  # env_wrapper: stable_baselines3.hppo.wrappers.RescaleActionWrapper # Normalize Action to [-1, 1]
+  env_wrapper:
+  - stable_baselines3.hppo.wrappers.RescaleActionWrapper:
+      min_action: -1   
+      max_action: 1  
+  # - train_scripts.gym_patches.PatchedTimeLimit:
+  #     max_episode_steps: 800      # adjust the max episode step according to the map size (500)        
+                
