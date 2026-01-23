@@ -8,7 +8,7 @@ import gymnasium as gym
 import stable_baselines3 as sb3  # noqa: F401
 import torch as th  # noqa: F401
 from gymnasium import spaces
-from stable_baselines3 import A2C, DDPG, DQN, PPO, SAC, TD3, HPPO
+from stable_baselines3 import A2C, DDPG, DQN, PPO, SAC, TD3, HPPO, HSAC
 from stable_baselines3.common.base_class import BaseAlgorithm
 from stable_baselines3.common.callbacks import BaseCallback
 
@@ -24,6 +24,8 @@ ALGOS: Dict[str, Type[BaseAlgorithm]] = {
     "td3": TD3,
     # Hybrid PPO
     "hppo": HPPO,
+    # Hybrid SAC
+    "hsac": HSAC,
 }
 
 

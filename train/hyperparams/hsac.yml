@@ -1,0 +1,28 @@
+# Hyperparameters for Hybrid SAC (HSAC)
+# Based on standard SAC parameters with adjustments for hybrid action spaces
+Moving-v0:
+  normalize: true
+  n_envs: 8
+  n_timesteps: !!float 1e7
+  policy: 'MlpPolicy'
+  learning_rate: lin_5e-6
+  buffer_size: 500000
+  batch_size: 256
+  learning_starts: 10000
+  ent_coef_task: 'auto'
+  ent_coef_param: 'auto'
+  target_entropy_task: 'auto'
+  target_entropy_param: 'auto'
+  train_freq: 1
+  gradient_steps: 1
+  gamma: 0.99
+  tau: 0.02
+  policy_kwargs:
+    net_arch: [256, 256]
+    activation_fn: relu
+  # env_wrapper:
+  # - stable_baselines3.hppo.wrappers.RescaleActionWrapper:
+  #     min_action: -1   
+  #     max_action: 1  
+  # - train_scripts.gym_patches.PatchedTimeLimit:
+  #     max_episode_steps: 800      # adjust the max episode step according to the map size (500)        
