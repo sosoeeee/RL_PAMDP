@@ -78,7 +78,7 @@ Moving-v0:
 Use the `train.py` script to start the training process. The script is a wrapper around the `train_scripts/train.py` module.
 
 ```bash
-python train.py --algo hppo --env Moving-v0 --device cuda -f ./models/ -P --track --wandb-project-name "test" --vec-env "subproc" --eval-freq 4096 --eval-episodes 20 --n-eval-envs 4 --paraTag "t1"
+python ./train_scripts/train.py --algo hppo --env Moving-v0 --device cuda -f ./models/ -P --track --wandb-project-name "test" --vec-env "subproc" --eval-freq 4096 --eval-episodes 20 --n-eval-envs 4 --paraTag "t1"
 ```
 
 ### Command-line Arguments:

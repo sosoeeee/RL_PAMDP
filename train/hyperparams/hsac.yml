@@ -2,16 +2,16 @@
 # Based on standard SAC parameters with adjustments for hybrid action spaces
 Moving-v0:
   normalize: true
-  n_envs: 8
-  n_timesteps: !!float 1e7
+  n_envs: 64
+  n_timesteps: !!float 1e8
   policy: 'MlpPolicy'
-  learning_rate: lin_5e-4
-  buffer_size: 500000
-  batch_size: 256
+  learning_rate: lin_5e-5
+  buffer_size: 1000000
+  batch_size: 1024
   learning_starts: 10000
-  ent_coef_task: 'auto'
+  ent_coef_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
   ent_coef_param: 'auto'
-  target_entropy_task: 'auto'
+  target_entropy_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
   target_entropy_param: 'auto'
   train_freq: 32
   gradient_steps: 32
