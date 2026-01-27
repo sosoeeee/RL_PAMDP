@@ -1,31 +1,8 @@
-"""Run a simple HSAC_DEX training using local demo .npz files.
-
-Usage examples:
-
-# Quick smoke test (small number of steps):
-python train/train_scripts/run_hsac_dex.py \
-    --demo-path envs/gym-hybrid/expert_demos/expert_demo_0.npz \
-    --env Moving-v0 \
-    --n-timesteps 10000 \
-    --device cpu \
-    --save-dir logs/hsac_dex_smoke
-
-# Full training:
-python train/train_scripts/run_hsac_dex.py --demo-path /full/path/expert_demo.npz --env Moving-v0 --n-timesteps 1e7 --device cuda
-
-The script will:
-- Verify demo file is readable and print its contents/shapes
-- Instantiate HSAC_DEX pointing at the demo file
-- Run model.learn(...) and save the model to <save-dir>
-
-Note: make sure the local `algs/stable-baselines3` is importable or installed (pip install -e ./algs/stable-baselines3)
-      and PyTorch is installed in the environment.
-"""
-
 import argparse
 import os
 import sys
 import time
+import glob
 
 import numpy as np
 import gymnasium as gym
@@ -36,10 +13,15 @@ SB3_PATH = os.path.join(REPO_ROOT, "algs", "stable-baselines3")
 if SB3_PATH not in sys.path:
     sys.path.insert(0, SB3_PATH)
 
+GH_PATH = os.path.join(REPO_ROOT, "envs", "gym-hybrid")
+if GH_PATH not in sys.path:
+    sys.path.insert(0, GH_PATH)
+import gym_hybrid  # registers Moving-v0 and Sliding-v0
+
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--demo-path", required=True, help="Path to a single expert demo .npz file")
+    p.add_argument("--demo-path", required=True, help="Path to a single expert demo .npz file or a directory with .npz files")
     p.add_argument("--env", default="Moving-v0", help="Gym env id")
     p.add_argument("--n-timesteps", default=100000, type=float, help="Number of timesteps to train for")
     p.add_argument("--device", default="cpu", help="PyTorch device to use (cpu or cuda)")
@@ -59,27 +41,40 @@ def parse_args():
 def verify_demo(demo_path: str) -> None:
     if not os.path.exists(demo_path):
         raise FileNotFoundError(f"Demo file not found: {demo_path}")
-    print(f"Inspecting demo file: {demo_path}")
-    with np.load(demo_path) as data:
-        print("keys:", list(data.keys()))
-        for k in data.keys():
-            v = data[k]
-            print(f" - {k}: shape={v.shape} dtype={v.dtype}")
+    if os.path.isdir(demo_path):
+        files = sorted(glob.glob(os.path.join(demo_path, "*.npz")))
+        if not files:
+            raise FileNotFoundError(f"No .npz demo files found in directory: {demo_path}")
+        print(f"Inspecting demo directory: {demo_path} (found {len(files)} files)")
+        for f in files:
+            with np.load(f) as data:
+                print(f" - {os.path.basename(f)}: {list(data.keys())}")
+    else:
+        with np.load(demo_path) as data:
+            print(f"Inspecting demo file: {os.path.basename(demo_path)}: {list(data.keys())}")
 
 
-def main():
-    args = parse_args()
+def main(args=None):
+    if args is None:
+        args = parse_args()
     demo_path = args.demo_path
-
     verify_demo(demo_path)
 
+    # Normalize device aliases and check torch availability
+    device = args.device
+    if device == "gpu":
+        device = "cuda"
+
+    import torch as th
+    if device == "cuda" and not th.cuda.is_available():
+        print("CUDA requested but not available; falling back to CPU")
+        device = "cpu"
+
+    args.device = device
+
     # Import HSAC_DEX lazily (after verifying demo readability)
-    try:
-        # We prefer direct import to avoid relying on installed package
-        from stable_baselines3.hsac_dex.hsac_dex import HSAC_DEX
-    except Exception as e:
-        print("Failed to import HSAC_DEX. Ensure stable-baselines3 local package is on PYTHONPATH or installed (pip install -e ./algs/stable-baselines3)")
-        raise
+    # direct import; let ImportError surface if package missing
+    from stable_baselines3.hsac_dex.hsac_dex import HSAC_DEX
 
     print("Creating environment:", args.env)
     env = gym.make(args.env)
@@ -89,7 +84,9 @@ def main():
     save_name = os.path.join(args.save_dir, f"hsac_dex_{args.env}_{timestamp}")
 
     print("Instantiating HSAC_DEX with demo_path", demo_path)
+    # Provide a default policy name (MlpPolicy) to satisfy HSAC constructor
     model = HSAC_DEX(
+        "MlpPolicy",
         env=env,
         demo_path=demo_path,
         demo_batch_size=args.demo_batch_size,
@@ -111,20 +108,12 @@ def main():
     print("Saving model to", save_name)
     model.save(save_name)
 
-    # Optionally save the replay buffer if available
-    try:
-        if hasattr(model, "save_replay_buffer"):
-            rb_path = save_name + "_replay_buffer.pkl"
-            print("Saving replay buffer to", rb_path)
-            model.save_replay_buffer(rb_path)
-    except Exception as e:
-        print("Could not save replay buffer:", e)
-
+    if hasattr(model, "save_replay_buffer"):
+        rb_path = save_name + "_replay_buffer.pkl"
+        print("Saving replay buffer to", rb_path)
+        model.save_replay_buffer(rb_path)
     # Close env
-    try:
-        model.env.close()
-    except Exception:
-        env.close()
+    model.env.close()
 
     print("Done.")
 
