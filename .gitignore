@@ -115,6 +115,9 @@ credentials.json
 *.key
 *.pem
 
+# Records
+/plan
+
 # Others
 coverage/
 pip-wheel-metadata/

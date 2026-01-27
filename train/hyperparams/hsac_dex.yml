@@ -1,0 +1,22 @@
+# Hyperparameters example for HSAC_DEX
+Moving-v0:
+  normalize: true
+  n_envs: 64
+  n_timesteps: !!float 1e7
+  policy: 'MlpPolicy'
+  learning_rate: lin_3e-4
+  buffer_size: 1000000
+  batch_size: 1024
+  learning_starts: 10000
+  train_freq: 32
+  gradient_steps: 32
+  gamma: 0.99
+  tau: 0.02
+  demo_path: 'envs/gym-hybrid/expert_demos/expert_demo_0.npz'
+  demo_batch_size: 256
+  demo_aux_weight: 1.0
+  demo_k: 5
+  demo_id_margin: 1.0
+  policy_kwargs:
+    net_arch: [256, 256]
+    activation_fn: relu
