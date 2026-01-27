@@ -1,6 +1,6 @@
 [submodule "algs/stable-baselines3"]
 	path = algs/stable-baselines3
-	url = https://github.com/azf-3/stable-baselines3.git
+	url = https://github.com/azf-369/stable-baselines3.git
 	branch = hsac_dex
 [submodule "envs/gym-hybrid"]
 	path = envs/gym-hybrid
