@@ -24,6 +24,7 @@ if GH_PATH not in sys.path:
 import gym_hybrid  # registers envs
 
 from stable_baselines3.common.utils import set_random_seed
+from stable_baselines3 import A2C, DDPG, DQN, PPO, SAC, TD3, HPPO, HSAC
 
 
 def find_model(path: str):
@@ -40,6 +41,31 @@ def find_model(path: str):
         return path
     if os.path.exists(path + ".zip"):
         return path + ".zip"
+    return None
+
+
+def resolve_algo_class(data: dict):
+    policy_class = data.get("policy_class", None)
+    if policy_class is None:
+        return None
+
+    module = getattr(policy_class, "__module__", "")
+    if ".hppo." in module:
+        return HPPO
+    if ".hsac." in module:
+        return HSAC
+    if ".sac." in module:
+        return SAC
+    if ".td3." in module:
+        return TD3
+    if ".ddpg." in module:
+        return DDPG
+    if ".dqn." in module:
+        return DQN
+    if ".ppo." in module:
+        return PPO
+    if ".a2c." in module:
+        return A2C
     return None
 
 
@@ -76,10 +102,10 @@ def main():
         from stable_baselines3.hsac_dex.hsac_dex import HSAC_DEX
         model = HSAC_DEX.load(model_path, env=vec_env)
     else:
-        # Fallback to BaseAlgorithm.load on user-specified class is required
-        from stable_baselines3.common.base_class import BaseAlgorithm
-
-        model = BaseAlgorithm.load(model_path, env=vec_env)
+        algo_cls = resolve_algo_class(data)
+        if algo_cls is None:
+            raise ValueError("Could not resolve algorithm class from saved model; please specify a known algorithm")
+        model = algo_cls.load(model_path, env=vec_env)
 
     frames = []
     obs = vec_env.reset()
@@ -89,7 +115,7 @@ def main():
         action, _ = model.predict(obs, deterministic=True)
         obs, rewards, dones, infos = vec_env.step(action)
         frames.append(vec_env.envs[0].render())
-        if dones[0] or dones:
+        if bool(dones[0]):
             break
 
     out = args.output or os.path.join(".", f"vis_{os.path.splitext(os.path.basename(model_path))[0]}.gif")

@@ -12,6 +12,12 @@ import torch as th
 from stable_baselines3.common.utils import set_random_seed
 
 # Register custom envs
+import os
+import sys
+GH_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "envs", "gym-hybrid"))
+if GH_PATH not in sys.path:
+    sys.path.insert(0, GH_PATH)
+import gym_hybrid  # noqa: F401
 import train_scripts.import_envs  # noqa: F401
 from train_scripts.exp_manager import ExperimentManager
 from train_scripts.utils import ALGOS, StoreDict
@@ -31,6 +37,7 @@ def train() -> None:
         help="Overwrite hyperparameter (e.g. learning_rate:0.01 train_freq:10)",
     )
     parser.add_argument("--device", help="PyTorch device to be use (ex: cpu, cuda...)", default="auto", type=str)
+    parser.add_argument("--demo-path", help="Path to demo .npz file or directory (for algorithms that use demos, e.g., hsac_dex)", default=None, type=str)
     
     ## ======================================= Environment related arguments ======================================= ##
     parser.add_argument("--env", type=str, default="CartPole-v1", help="environment ID")
@@ -66,7 +73,8 @@ def train() -> None:
         type=int,
     )
     parser.add_argument("--eval-episodes", help="Number of episodes to use for evaluation", default=5, type=int)
-    parser.add_argument("--deterministic-eval", action="store_true", default=True, help="Use deterministic evaluation")
+    parser.add_argument("--deterministic-eval", dest="deterministic_eval", action="store_true", default=True, help="Use deterministic evaluation")
+    parser.add_argument("--stochastic-eval", dest="deterministic_eval", action="store_false", help="Use stochastic evaluation")
     parser.add_argument("--n-eval-envs", help="Number of environments for evaluation", default=1, type=int)
     parser.add_argument("--save-freq", help="Save the model every n steps (if negative, no checkpoint)", default=-1, type=int)
     parser.add_argument(
