@@ -76,7 +76,7 @@ def main():
     p.add_argument("--env", default="Moving-v0")
     p.add_argument("--output", default=None, help="Output GIF path (default: ./vis_{modelname}.gif)")
     p.add_argument("--max-frames", type=int, default=200)
-    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--seed", type=int, default=4)
     args = p.parse_args()
 
     model_path = args.model or find_model(args.model_dir)
@@ -89,7 +89,9 @@ def main():
 
     from stable_baselines3.common.vec_env import DummyVecEnv
     # Use a DummyVecEnv so the model and policy receive vectorized observations as expected
-    env_fn = lambda: gym.make(args.env, render_mode="rgb_array")
+    def env_fn():
+        env = gym.make(args.env, render_mode="rgb_array")
+        return env
     vec_env = DummyVecEnv([env_fn])
     # Inspect saved archive to choose correct class for loading
     from stable_baselines3.common.save_util import load_from_zip_file
@@ -109,14 +111,19 @@ def main():
 
     frames = []
     obs = vec_env.reset()
+    # 兼容 DummyVecEnv 不支持 seed 参数，手动对底层环境设置 seed
+    obs_single, _ = vec_env.envs[0].reset(seed=args.seed)
+    # vec_env 的 reset 返回的是 shape (1, obs_dim)，手动同步
+    import numpy as np
+    obs = np.expand_dims(obs_single, axis=0)
     frames.append(vec_env.envs[0].render())
 
     for _ in range(args.max_frames):
         action, _ = model.predict(obs, deterministic=True)
         obs, rewards, dones, infos = vec_env.step(action)
-        frames.append(vec_env.envs[0].render())
         if bool(dones[0]):
             break
+        frames.append(vec_env.envs[0].render())
 
     out = args.output or os.path.join(".", f"vis_{os.path.splitext(os.path.basename(model_path))[0]}.gif")
     imageio.mimsave(out, frames, fps=20)
