@@ -1,11 +1,8 @@
-"""模型可视化
-用法示例：
-python train/train_scripts/visualize_trained_model.py --model-dir logs/hsac_dex --env Moving-v0 --output /tmp/vis.gif --max-frames 200
-"""
 import os
 import sys
 import argparse
 import glob
+import numpy as np
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
@@ -111,10 +108,7 @@ def main():
 
     frames = []
     obs = vec_env.reset()
-    # 兼容 DummyVecEnv 不支持 seed 参数，手动对底层环境设置 seed
     obs_single, _ = vec_env.envs[0].reset(seed=args.seed)
-    # vec_env 的 reset 返回的是 shape (1, obs_dim)，手动同步
-    import numpy as np
     obs = np.expand_dims(obs_single, axis=0)
     frames.append(vec_env.envs[0].render())
 
