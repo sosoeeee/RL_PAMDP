@@ -9,6 +9,7 @@ import stable_baselines3 as sb3  # noqa: F401
 import torch as th  # noqa: F401
 from gymnasium import spaces
 from stable_baselines3 import A2C, DDPG, DQN, PPO, SAC, TD3, HPPO, HSAC
+from stable_baselines3.hsac_dex.hsac_dex import HSAC_DEX
 from stable_baselines3.common.base_class import BaseAlgorithm
 from stable_baselines3.common.callbacks import BaseCallback
 
@@ -26,6 +27,8 @@ ALGOS: Dict[str, Type[BaseAlgorithm]] = {
     "hppo": HPPO,
     # Hybrid SAC
     "hsac": HSAC,
+    # DEX-style HSAC with demo guidance
+    "hsac_dex": HSAC_DEX,
 }
 
 

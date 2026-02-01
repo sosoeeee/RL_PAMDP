@@ -31,6 +31,7 @@ def train() -> None:
         help="Overwrite hyperparameter (e.g. learning_rate:0.01 train_freq:10)",
     )
     parser.add_argument("--device", help="PyTorch device to be use (ex: cpu, cuda...)", default="auto", type=str)
+    # parser.add_argument("--demo-path", help="Path to demo .npz file or directory (for algorithms that use demos, e.g., hsac_dex)", default=None, type=str)
     
     ## ======================================= Environment related arguments ======================================= ##
     parser.add_argument("--env", type=str, default="CartPole-v1", help="environment ID")

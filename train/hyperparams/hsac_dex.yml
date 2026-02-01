@@ -1,0 +1,30 @@
+# Hyperparameters example for HSAC_DEX
+Moving-v0:
+  normalize: true
+  n_envs: 16
+  n_timesteps: !!float 1e8
+  policy: 'MlpPolicy'
+  learning_rate: lin_5e-5
+  buffer_size: 1000000
+  batch_size: 1024
+  learning_starts: 10000
+  ent_coef_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
+  ent_coef_param: 'auto'
+  target_entropy_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
+  target_entropy_param: 'auto'
+  train_freq: 32
+  gradient_steps: 32
+  gamma: 0.99
+  tau: 0.02
+  demo_path: '/home/sosoeeee/Projects/02-adaptiveMS/RL_PAMDP/envs/gym-hybrid/expert_demos/data'
+  demo_batch_size: 4096
+  demo_aux_weight: 0.5
+  demo_k: 5
+  demo_id_margin: 2.0 # upper bound for action distance penalty
+  policy_kwargs:
+    net_arch: [256, 256]
+    activation_fn: relu
+  env_wrapper:
+  - stable_baselines3.hppo.wrappers.RescaleActionWrapper:
+      min_action: -1   
+      max_action: 1  

@@ -314,6 +314,10 @@ class ExperimentManager:
         if self.custom_hyperparams is not None:
             # Overwrite hyperparams if needed
             hyperparams.update(self.custom_hyperparams)
+        # Allow command-line demo-path override (useful for hsac_dex)
+        demo_path = getattr(self.args, "demo_path", None)
+        if demo_path is not None:
+            hyperparams["demo_path"] = demo_path
         # Sort hyperparams that will be saved
         saved_hyperparams = OrderedDict([(key, hyperparams[key]) for key in sorted(hyperparams.keys())])
 
