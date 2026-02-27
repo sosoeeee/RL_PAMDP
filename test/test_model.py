@@ -135,7 +135,7 @@ def test_train_model() -> None:
     normalized_env.norm_reward = False
 
     if args.lastModel:
-        model_path = default_path / f'train/models/{algo_folder}/{ENV_ID}_{model_index}/rl-replanner-train.zip'
+        model_path = default_path / f'train/models/{algo_folder}/{ENV_ID}_{model_index}/{ENV_ID}.zip'
     else:
         model_path = default_path / f'train/models/{algo_folder}/{ENV_ID}_{model_index}/best_model.zip'
 

@@ -9,9 +9,9 @@ Moving-v0:
   buffer_size: 1000000
   batch_size: 1024
   learning_starts: 10000
-  ent_coef_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
+  ent_coef_task: 'auto'
   ent_coef_param: 'auto'
-  target_entropy_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
+  target_entropy_task: 'auto'
   target_entropy_param: 'auto'
   train_freq: 32
   gradient_steps: 32
@@ -20,9 +20,9 @@ Moving-v0:
   policy_kwargs:
     net_arch: [256, 256]
     activation_fn: relu
-  # env_wrapper:
-  # - stable_baselines3.hppo.wrappers.RescaleActionWrapper:
-  #     min_action: -1   
-  #     max_action: 1  
+  env_wrapper:
+  - stable_baselines3.hppo.wrappers.RescaleActionWrapper:
+      min_action: -1   
+      max_action: 1  
   # - train_scripts.gym_patches.PatchedTimeLimit:
   #     max_episode_steps: 800      # adjust the max episode step according to the map size (500)        

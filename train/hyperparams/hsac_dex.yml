@@ -1,10 +1,10 @@
 # Hyperparameters example for HSAC_DEX
 Moving-v0:
   normalize: true
-  n_envs: 16
+  n_envs: 64
   n_timesteps: !!float 1e8
-  policy: 'MlpPolicy'
-  learning_rate: lin_5e-5
+  policy: 'MultiInputPolicy'
+  learning_rate: !!float 1e-4
   buffer_size: 1000000
   batch_size: 1024
   learning_starts: 10000
@@ -12,18 +12,23 @@ Moving-v0:
   ent_coef_param: 'auto'
   target_entropy_task: 'auto' # ratio * log(n_discrete_actions), where ratio is 0.1 - 0.3
   target_entropy_param: 'auto'
-  train_freq: 32
+  train_freq: 16
   gradient_steps: 32
   gamma: 0.99
   tau: 0.02
-  demo_path: '/home/sosoeeee/Projects/02-adaptiveMS/RL_PAMDP/envs/gym-hybrid/expert_demos/data'
+  demo_path: '/home/sosoeeee/Projects/02-adaptiveMS/RL_PAMDP/envs/gym-hybrid/expert_demos/data/expert_demos_Moving-v0_300_20260227_120126.npz'
   demo_batch_size: 4096
-  demo_aux_weight: 0.5
+  demo_aux_weight: 0.0 # 0.25
   demo_k: 5
-  demo_id_margin: 2.0 # upper bound for action distance penalty
+  demo_id_margin: 4.0 # upper bound for action distance penalty, (1-(-1))^2=4 for rescaled actions
+  replay_demo_ratio: 0.1
   policy_kwargs:
     net_arch: [256, 256]
     activation_fn: relu
+  replay_buffer_class: HybridHerReplayBuffer
+  replay_buffer_kwargs:
+    goal_selection_strategy: 'future'
+    n_sampled_goal: 4
   env_wrapper:
   - stable_baselines3.hppo.wrappers.RescaleActionWrapper:
       min_action: -1   
